@@ -1,0 +1,205 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-02-03T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "cidr-1",
+      "type": "cidr",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "label": "192.168.1.0/24",
+        "description": "Corporate Network",
+        "tags": {},
+        "metadata": {}
+      }
+    },
+    {
+      "id": "dc-1",
+      "type": "server",
+      "position": {
+        "x": -200,
+        "y": 150
+      },
+      "data": {
+        "label": "DC01",
+        "description": "Domain Controller",
+        "ip": "192.168.1.10",
+        "subType": "dc",
+        "tags": {
+          "os": ["windows"],
+          "domain": ["domain_controller"],
+          "risk": ["secured"]
+        },
+        "metadata": {
+          "hostname": "DC01.corp.com",
+          "osVersion": "Windows Server 2022"
+        }
+      }
+    },
+    {
+      "id": "web-1",
+      "type": "server",
+      "position": {
+        "x": 0,
+        "y": 150
+      },
+      "data": {
+        "label": "WEB01",
+        "description": "Web Server",
+        "ip": "192.168.1.20",
+        "subType": "web",
+        "tags": {
+          "os": ["linux"],
+          "service": ["web_server"],
+          "risk": ["exposed"]
+        },
+        "metadata": {
+          "hostname": "web01.corp.com",
+          "osVersion": "Ubuntu 22.04 LTS"
+        }
+      }
+    },
+    {
+      "id": "db-1",
+      "type": "server",
+      "position": {
+        "x": 200,
+        "y": 150
+      },
+      "data": {
+        "label": "DB01",
+        "description": "Database Server",
+        "ip": "192.168.1.30",
+        "subType": "database",
+        "tags": {
+          "os": ["windows"],
+          "service": ["sqlserver"],
+          "domain": ["domain_member"],
+          "risk": ["unpatched"]
+        },
+        "metadata": {
+          "hostname": "DB01.corp.com",
+          "osVersion": "Windows Server 2019"
+        }
+      }
+    },
+    {
+      "id": "pc-1",
+      "type": "pc",
+      "position": {
+        "x": -300,
+        "y": 300
+      },
+      "data": {
+        "label": "WORK-01",
+        "description": "Employee Workstation",
+        "ip": "192.168.1.101",
+        "tags": {
+          "os": ["windows"],
+          "domain": ["domain_member"]
+        },
+        "metadata": {
+          "hostname": "work-01.corp.com",
+          "osVersion": "Windows 11"
+        }
+      }
+    },
+    {
+      "id": "device-1",
+      "type": "device",
+      "position": {
+        "x": 300,
+        "y": 300
+      },
+      "data": {
+        "label": "FW-01",
+        "description": "Firewall",
+        "ip": "192.168.1.1",
+        "subType": "firewall",
+        "tags": {
+          "risk": ["secured"]
+        },
+        "metadata": {
+          "model": "Cisco ASA"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-cidr-1-dc-1",
+      "source": "cidr-1",
+      "target": "dc-1",
+      "data": {
+        "label": "contains",
+        "type": "contains"
+      }
+    },
+    {
+      "id": "edge-cidr-1-web-1",
+      "source": "cidr-1",
+      "target": "web-1",
+      "data": {
+        "label": "contains",
+        "type": "contains"
+      }
+    },
+    {
+      "id": "edge-cidr-1-db-1",
+      "source": "cidr-1",
+      "target": "db-1",
+      "data": {
+        "label": "contains",
+        "type": "contains"
+      }
+    },
+    {
+      "id": "edge-cidr-1-pc-1",
+      "source": "cidr-1",
+      "target": "pc-1",
+      "data": {
+        "label": "contains",
+        "type": "contains"
+      }
+    },
+    {
+      "id": "edge-cidr-1-device-1",
+      "source": "cidr-1",
+      "target": "device-1",
+      "data": {
+        "label": "contains",
+        "type": "contains"
+      }
+    },
+    {
+      "id": "edge-dc-1-web-1",
+      "source": "dc-1",
+      "target": "web-1",
+      "data": {
+        "label": "auth",
+        "type": "connects"
+      }
+    },
+    {
+      "id": "edge-web-1-db-1",
+      "source": "web-1",
+      "target": "db-1",
+      "data": {
+        "label": "queries",
+        "type": "depends_on"
+      }
+    },
+    {
+      "id": "edge-device-1-web-1",
+      "source": "device-1",
+      "target": "web-1",
+      "data": {
+        "label": "routes",
+        "type": "connects"
+      }
+    }
+  ]
+}
