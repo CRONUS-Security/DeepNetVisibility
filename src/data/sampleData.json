@@ -8,8 +8,57 @@
       "position": { "x": 0, "y": 0 },
       "data": {
         "label": "Internet",
-        "description": "External Network",
+        "description": "External Network (0.0.0.0/0)",
+        "ip": "0.0.0.0/0",
         "tags": { "risk": ["external"] },
+        "metadata": {}
+      }
+    },
+    {
+      "id": "cidr-external",
+      "type": "cidr",
+      "position": { "x": -200, "y": 100 },
+      "data": {
+        "label": "203.0.113.0/24",
+        "description": "External Public Subnet",
+        "ip": "203.0.113.0/24",
+        "tags": { "risk": ["external"] },
+        "metadata": {}
+      }
+    },
+    {
+      "id": "cidr-internal-root",
+      "type": "cidr",
+      "position": { "x": 200, "y": 100 },
+      "data": {
+        "label": "10.0.0.0/8",
+        "description": "Internal Network Root",
+        "ip": "10.0.0.0/8",
+        "tags": {},
+        "metadata": {}
+      }
+    },
+    {
+      "id": "cidr-core",
+      "type": "cidr",
+      "position": { "x": 200, "y": 200 },
+      "data": {
+        "label": "10.0.0.0/24",
+        "description": "Core Network Infrastructure",
+        "ip": "10.0.0.0/24",
+        "tags": { "risk": ["critical"] },
+        "metadata": {}
+      }
+    },
+    {
+      "id": "cidr-datacenter",
+      "type": "cidr",
+      "position": { "x": 400, "y": 200 },
+      "data": {
+        "label": "10.10.0.0/16",
+        "description": "Datacenter Network",
+        "ip": "10.10.0.0/16",
+        "tags": {},
         "metadata": {}
       }
     },
@@ -19,8 +68,8 @@
       "position": { "x": 0, "y": 150 },
       "data": {
         "label": "EDGE-RTR-01",
-        "description": "Edge Router",
-        "ip": "203.0.113.1",
+        "description": "Edge Router (Dual-homed)",
+        "ip": "203.0.113.1, 10.0.0.254",
         "subType": "router",
         "tags": { "risk": ["critical"] },
         "metadata": { "model": "Cisco ISR 4451" }
@@ -32,8 +81,8 @@
       "position": { "x": 0, "y": 300 },
       "data": {
         "label": "FW-01",
-        "description": "Perimeter Firewall",
-        "ip": "10.0.0.1",
+        "description": "Perimeter Firewall (Multi-interface)",
+        "ip": "10.0.0.1, 172.16.0.1, 10.10.0.1",
         "subType": "firewall",
         "tags": { "risk": ["critical"], "service": ["firewall"] },
         "metadata": { "model": "Palo Alto PA-3260" }
@@ -46,6 +95,7 @@
       "data": {
         "label": "172.16.0.0/24",
         "description": "DMZ Network",
+        "ip": "172.16.0.0/24",
         "tags": { "risk": ["exposed"] },
         "metadata": {}
       }
@@ -69,8 +119,8 @@
       "position": { "x": -400, "y": 750 },
       "data": {
         "label": "WEB-01",
-        "description": "Public Web Server",
-        "ip": "172.16.0.10",
+        "description": "Public Web Server (Load balanced)",
+        "ip": "172.16.0.10, 172.16.0.11",
         "subType": "web",
         "tags": { "os": ["Linux"], "service": ["nginx", "nodejs"], "risk": ["exposed"] },
         "metadata": { "hostname": "web01.corp.com", "osVersion": "Ubuntu 22.04 LTS" }
@@ -122,6 +172,7 @@
       "data": {
         "label": "10.10.1.0/24",
         "description": "Server VLAN",
+        "ip": "10.10.1.0/24",
         "tags": {},
         "metadata": {}
       }
@@ -132,8 +183,8 @@
       "position": { "x": 100, "y": 750 },
       "data": {
         "label": "DC-01",
-        "description": "Primary Domain Controller",
-        "ip": "10.10.1.10",
+        "description": "Primary Domain Controller (Multi-homed)",
+        "ip": "10.10.1.10, 10.10.2.10",
         "subType": "dc",
         "tags": { "os": ["Windows"], "domain": ["domain_controller"], "service": ["AD", "DNS", "DHCP"], "risk": ["critical"] },
         "metadata": { "hostname": "DC01.corp.local", "osVersion": "Windows Server 2022" }
@@ -198,6 +249,7 @@
       "data": {
         "label": "10.10.2.0/24",
         "description": "Management VLAN",
+        "ip": "10.10.2.0/24",
         "tags": { "risk": ["restricted"] },
         "metadata": {}
       }
@@ -234,6 +286,7 @@
       "data": {
         "label": "10.10.10.0/24",
         "description": "Workstation VLAN",
+        "ip": "10.10.10.0/24",
         "tags": {},
         "metadata": {}
       }

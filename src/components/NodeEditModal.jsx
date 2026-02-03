@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faXmark,
@@ -10,7 +10,10 @@ import {
   faTag,
   faPlus,
   faTrash,
+  faCircleExclamation,
+  faCircleCheck,
 } from '@fortawesome/free-solid-svg-icons';
+import { validateNodeIPs, isCIDR, isValidIP } from '../utils/networkUtils';
 import './NodeEditModal.css';
 
 const nodeTypeIcons = {
@@ -168,15 +171,56 @@ export const NodeEditModal = ({ node, onSave, onClose }) => {
             </div>
 
             <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="ip">IP Address / CIDR</label>
-                <input
-                  id="ip"
-                  type="text"
-                  value={formData.ip}
-                  onChange={(e) => handleInputChange('ip', e.target.value)}
-                  placeholder="192.168.1.0/24"
-                />
+              <div className="form-group ip-input-group">
+                <label htmlFor="ip">
+                  {node.type === 'cidr' ? 'CIDR Block' : 'IP Address(es)'}
+                  {node.type !== 'cidr' && (
+                    <span className="label-hint"> (comma or newline separated)</span>
+                  )}
+                </label>
+                {node.type === 'cidr' ? (
+                  <input
+                    id="ip"
+                    type="text"
+                    value={formData.ip}
+                    onChange={(e) => handleInputChange('ip', e.target.value)}
+                    placeholder="192.168.1.0/24"
+                    className={formData.ip && !isCIDR(formData.ip) ? 'input-warning' : ''}
+                  />
+                ) : (
+                  <textarea
+                    id="ip"
+                    value={formData.ip}
+                    onChange={(e) => handleInputChange('ip', e.target.value)}
+                    placeholder="192.168.1.1&#10;192.168.1.2&#10;10.0.0.5"
+                    rows={3}
+                    className="ip-textarea"
+                  />
+                )}
+                {node.type !== 'cidr' && formData.ip && (
+                  <div className="ip-validation">
+                    {(() => {
+                      const validation = validateNodeIPs({ data: { ip: formData.ip } });
+                      if (validation.errors.length > 0) {
+                        return (
+                          <span className="validation-error">
+                            <FontAwesomeIcon icon={faCircleExclamation} />
+                            {validation.errors[0]}
+                          </span>
+                        );
+                      }
+                      if (validation.ips.length > 0) {
+                        return (
+                          <span className="validation-success">
+                            <FontAwesomeIcon icon={faCircleCheck} />
+                            {validation.ips.length} IP(s) detected
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                )}
               </div>
 
               {showSubType && (

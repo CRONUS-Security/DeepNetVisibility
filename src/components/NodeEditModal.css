@@ -158,6 +158,50 @@
   gap: var(--space-4);
 }
 
+/* === IP Input Group === */
+.ip-input-group {
+  grid-column: 1 / -1;
+}
+
+.ip-input-group .label-hint {
+  font-weight: var(--font-normal);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.ip-textarea {
+  font-family: var(--font-mono);
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 72px;
+}
+
+.ip-validation {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.validation-error {
+  color: var(--accent-red);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.validation-success {
+  color: var(--accent-green);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.input-warning {
+  border-color: var(--node-device) !important;
+}
+
 /* === Tags Section === */
 .tags-display {
   display: flex;

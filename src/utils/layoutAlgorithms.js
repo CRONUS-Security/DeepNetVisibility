@@ -1,4 +1,5 @@
 import dagre from 'dagre';
+import { buildCIDRHierarchy, getNodeCIDR, parseCIDR } from './networkUtils';
 
 /**
  * Layout algorithm options
@@ -9,6 +10,7 @@ export const LayoutTypes = {
   FORCE_DIRECTED: 'force-directed',
   GRID: 'grid',
   RADIAL: 'radial',
+  CIDR_TREE: 'cidr-tree',
 };
 
 export const LayoutLabels = {
@@ -17,6 +19,7 @@ export const LayoutLabels = {
   [LayoutTypes.FORCE_DIRECTED]: 'Force Directed',
   [LayoutTypes.GRID]: 'Grid',
   [LayoutTypes.RADIAL]: 'Radial',
+  [LayoutTypes.CIDR_TREE]: 'CIDR Tree (Auto)',
 };
 
 const NODE_WIDTH = 180;
@@ -265,6 +268,160 @@ function radialLayout(nodes, edges) {
 }
 
 /**
+ * CIDR Tree layout - arranges nodes based on IP/CIDR hierarchy
+ * Creates a tree structure: Internet/Root -> larger CIDRs -> smaller CIDRs -> IP nodes
+ *
+ * @param {Array} nodes - ReactFlow nodes
+ * @param {Array} edges - ReactFlow edges (optional, will auto-generate if needed)
+ * @returns {{ nodes: Array, edges: Array }} - Nodes with positions and hierarchy edges
+ */
+function cidrTreeLayout(nodes, edges) {
+  if (nodes.length === 0) return { nodes: [], edges: [] };
+
+  // Build hierarchy
+  const { edges: hierarchyEdges, hierarchy } = buildCIDRHierarchy(nodes);
+
+  // Merge hierarchy edges with existing non-auto edges
+  const manualEdges = edges.filter((e) => !e.data?.auto);
+  const edgeSet = new Set(manualEdges.map((e) => `${e.source}-${e.target}`));
+  const mergedEdges = [...manualEdges];
+
+  for (const edge of hierarchyEdges) {
+    const key = `${edge.source}-${edge.target}`;
+    const reverseKey = `${edge.target}-${edge.source}`;
+    if (!edgeSet.has(key) && !edgeSet.has(reverseKey)) {
+      mergedEdges.push(edge);
+      edgeSet.add(key);
+    }
+  }
+
+  // Build tree structure for layout
+  const children = new Map(); // parentId -> [childIds]
+  const hasParent = new Set();
+
+  for (const [childId, parentId] of hierarchy.entries()) {
+    if (!children.has(parentId)) children.set(parentId, []);
+    children.get(parentId).push(childId);
+    hasParent.add(childId);
+  }
+
+  // Find root nodes (no parent in hierarchy)
+  const roots = nodes.filter((n) => !hasParent.has(n.id));
+
+  // Sort roots: CIDR nodes first (by prefix size, smallest first for largest network)
+  roots.sort((a, b) => {
+    const aIsCidr = a.type === 'cidr';
+    const bIsCidr = b.type === 'cidr';
+    if (aIsCidr && !bIsCidr) return -1;
+    if (!aIsCidr && bIsCidr) return 1;
+    if (aIsCidr && bIsCidr) {
+      const aCidr = getNodeCIDR(a);
+      const bCidr = getNodeCIDR(b);
+      const aPrefix = aCidr ? parseCIDR(aCidr)?.prefix ?? 32 : 32;
+      const bPrefix = bCidr ? parseCIDR(bCidr)?.prefix ?? 32 : 32;
+      return aPrefix - bPrefix;
+    }
+    return 0;
+  });
+
+  // Calculate tree depth and width for each subtree
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+
+  function getSubtreeInfo(nodeId, depth = 0) {
+    const childIds = children.get(nodeId) || [];
+
+    if (childIds.length === 0) {
+      return { depth: depth, width: 1, maxDepth: depth };
+    }
+
+    let totalWidth = 0;
+    let maxChildDepth = depth;
+
+    for (const childId of childIds) {
+      const info = getSubtreeInfo(childId, depth + 1);
+      totalWidth += info.width;
+      maxChildDepth = Math.max(maxChildDepth, info.maxDepth);
+    }
+
+    return { depth, width: totalWidth, maxDepth: maxChildDepth };
+  }
+
+  // Layout parameters
+  const LEVEL_HEIGHT = 150;
+  const NODE_WIDTH_SPACING = 220;
+  const SUBTREE_PADDING = 40;
+
+  // Position nodes using recursive algorithm
+  const positions = new Map();
+
+  function layoutSubtree(nodeId, startX, depth) {
+    const childIds = children.get(nodeId) || [];
+
+    if (childIds.length === 0) {
+      positions.set(nodeId, { x: startX, y: depth * LEVEL_HEIGHT + 50 });
+      return NODE_WIDTH_SPACING;
+    }
+
+    // Sort children: CIDR nodes first, then by name
+    const sortedChildren = [...childIds].sort((aId, bId) => {
+      const a = nodeMap.get(aId);
+      const b = nodeMap.get(bId);
+      if (!a || !b) return 0;
+
+      const aIsCidr = a.type === 'cidr';
+      const bIsCidr = b.type === 'cidr';
+      if (aIsCidr && !bIsCidr) return -1;
+      if (!aIsCidr && bIsCidr) return 1;
+
+      return (a.data?.label || '').localeCompare(b.data?.label || '');
+    });
+
+    // Layout children
+    let currentX = startX;
+    for (const childId of sortedChildren) {
+      const width = layoutSubtree(childId, currentX, depth + 1);
+      currentX += width + SUBTREE_PADDING;
+    }
+
+    const totalWidth = currentX - startX - SUBTREE_PADDING;
+
+    // Center parent above children
+    const centerX = startX + totalWidth / 2 - NODE_WIDTH / 2;
+    positions.set(nodeId, { x: centerX, y: depth * LEVEL_HEIGHT + 50 });
+
+    return totalWidth;
+  }
+
+  // Layout all root subtrees
+  let currentX = 100;
+  for (const root of roots) {
+    const width = layoutSubtree(root.id, currentX, 0);
+    currentX += width + SUBTREE_PADDING * 2;
+  }
+
+  // Handle orphan nodes (not connected to hierarchy at all)
+  const orphans = nodes.filter((n) => !positions.has(n.id));
+  if (orphans.length > 0) {
+    const maxY = Math.max(...Array.from(positions.values()).map((p) => p.y), 0);
+    const orphanY = maxY + LEVEL_HEIGHT + 50;
+    orphans.forEach((node, i) => {
+      positions.set(node.id, { x: 100 + i * NODE_WIDTH_SPACING, y: orphanY });
+    });
+  }
+
+  // Apply positions to nodes
+  const positionedNodes = nodes.map((node) => {
+    const pos = positions.get(node.id);
+    return {
+      ...node,
+      position: pos ? { x: pos.x, y: pos.y } : node.position,
+    };
+  });
+
+  return { nodes: positionedNodes, edges: mergedEdges };
+}
+
+/**
  * Apply layout algorithm to nodes
  * @param {Array} nodes - ReactFlow nodes
  * @param {Array} edges - ReactFlow edges
@@ -283,7 +440,20 @@ export function applyLayout(nodes, edges, layoutType) {
       return gridLayout(nodes);
     case LayoutTypes.RADIAL:
       return radialLayout(nodes, edges);
+    case LayoutTypes.CIDR_TREE:
+      return cidrTreeLayout(nodes, edges).nodes;
     default:
       return nodes;
   }
+}
+
+/**
+ * Apply CIDR tree layout and return both nodes and edges
+ * This is useful when you want to also get the auto-generated edges
+ * @param {Array} nodes - ReactFlow nodes
+ * @param {Array} edges - ReactFlow edges
+ * @returns {{ nodes: Array, edges: Array }}
+ */
+export function applyCIDRTreeLayout(nodes, edges) {
+  return cidrTreeLayout(nodes, edges);
 }

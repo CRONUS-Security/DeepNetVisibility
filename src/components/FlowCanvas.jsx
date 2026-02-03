@@ -19,7 +19,7 @@ import { DeviceNode } from './nodes/DeviceNode';
 import { Toolbar } from './Toolbar';
 import { ContextMenu } from './ContextMenu';
 import { NodeEditModal } from './NodeEditModal';
-import { applyLayout } from '../utils/layoutAlgorithms';
+import { applyLayout, applyCIDRTreeLayout, LayoutTypes } from '../utils/layoutAlgorithms';
 
 import './FlowCanvas.css';
 
@@ -186,11 +186,18 @@ export const FlowCanvas = () => {
 
   const handleApplyLayout = useCallback(
     (layoutType) => {
-      const newNodes = applyLayout(nodes, edges, layoutType);
-      setNodesState(newNodes);
+      if (layoutType === LayoutTypes.CIDR_TREE) {
+        // CIDR tree layout also generates auto-edges based on IP/CIDR hierarchy
+        const result = applyCIDRTreeLayout(nodes, edges);
+        setNodesState(result.nodes);
+        setEdgesState(result.edges);
+      } else {
+        const newNodes = applyLayout(nodes, edges, layoutType);
+        setNodesState(newNodes);
+      }
       setTimeout(() => fitView({ duration: 400, padding: 0.2 }), 50);
     },
-    [nodes, edges, setNodesState, fitView]
+    [nodes, edges, setNodesState, setEdgesState, fitView]
   );
 
   return (

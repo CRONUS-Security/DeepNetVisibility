@@ -20,6 +20,7 @@ import {
   faCircleNodes,
   faArrowsUpDown,
   faArrowsLeftRight,
+  faDiagramProject,
 } from '@fortawesome/free-solid-svg-icons';
 import { LayoutTypes, LayoutLabels } from '../utils/layoutAlgorithms';
 import './Toolbar.css';
@@ -124,6 +125,7 @@ export const Toolbar = ({
     [LayoutTypes.FORCE_DIRECTED]: faProjectDiagram,
     [LayoutTypes.GRID]: faTableCells,
     [LayoutTypes.RADIAL]: faCircleNodes,
+    [LayoutTypes.CIDR_TREE]: faDiagramProject,
   };
 
   return (
