@@ -219,6 +219,67 @@ export const FlowCanvas = () => {
     [nodes, edges, setNodesState, setEdgesState, fitView]
   );
 
+  // Global keyboard shortcuts for selected nodes
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Skip if editing a node or context menu is open or typing in input
+      if (editingNode || contextMenu) return;
+      if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+
+      const selectedNodes = nodes.filter((n) => n.selected);
+      if (selectedNodes.length === 0) return;
+
+      const key = event.key.toLowerCase();
+
+      // E - Edit (first selected node)
+      if (key === 'e') {
+        event.preventDefault();
+        handleEditNode(selectedNodes[0]);
+        return;
+      }
+
+      // Ctrl/Cmd + D - Duplicate
+      if (key === 'd' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        selectedNodes.forEach((node) => handleDuplicateNode(node));
+        return;
+      }
+
+      // F - Focus (first selected node)
+      if (key === 'f') {
+        event.preventDefault();
+        handleFocusNode(selectedNodes[0]);
+        return;
+      }
+
+      // P - Toggle Pwned
+      if (key === 'p') {
+        event.preventDefault();
+        selectedNodes.forEach((node) => handleTogglePwned(node));
+        return;
+      }
+
+      // Delete/Backspace - Delete selected nodes
+      if (key === 'delete' || key === 'backspace') {
+        event.preventDefault();
+        selectedNodes.forEach((node) => handleDeleteNode(node.id));
+        return;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [
+    nodes,
+    editingNode,
+    contextMenu,
+    handleEditNode,
+    handleDuplicateNode,
+    handleFocusNode,
+    handleTogglePwned,
+    handleDeleteNode,
+  ]);
+
   return (
     <div className="flow-container">
       <Toolbar

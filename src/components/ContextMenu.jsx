@@ -48,19 +48,57 @@ export const ContextMenu = ({
       }
     };
 
-    const handleEscape = (event) => {
-      if (event.key === 'Escape') {
+    const handleKeyDown = (event) => {
+      const key = event.key.toLowerCase();
+
+      if (key === 'escape') {
         onClose();
+        return;
+      }
+
+      if (key === 'e') {
+        event.preventDefault();
+        onEdit(node);
+        onClose();
+        return;
+      }
+
+      if (key === 'd' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        onDuplicate(node);
+        onClose();
+        return;
+      }
+
+      if (key === 'f') {
+        event.preventDefault();
+        onFocus(node);
+        onClose();
+        return;
+      }
+
+      if (key === 'p') {
+        event.preventDefault();
+        onTogglePwned(node);
+        onClose();
+        return;
+      }
+
+      if (key === 'delete' || key === 'backspace') {
+        event.preventDefault();
+        onDelete(node.id);
+        onClose();
+        return;
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose]);
+  }, [node, onClose, onEdit, onDuplicate, onFocus, onTogglePwned, onDelete]);
 
   if (!node) return null;
 
