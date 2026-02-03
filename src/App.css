@@ -1,11 +1,23 @@
+/* === App Layout === */
 #root {
   width: 100%;
   height: 100vh;
   margin: 0;
   padding: 0;
+  background-color: var(--bg-primary);
 }
 
 .app {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+}
+
+/* Main content area (below toolbar) */
+.app-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
 }

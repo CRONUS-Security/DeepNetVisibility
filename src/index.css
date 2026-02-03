@@ -1,21 +1,159 @@
-* {
+/* === DeepNetVisibility Design System === */
+/* Moegi-inspired dark theme with geek/programmer aesthetics */
+
+:root {
+  /* === Colors === */
+  /* Background colors */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-elevated: #30363d;
+
+  /* Accent colors (Moegi-style) */
+  --accent-green: #66b395;
+  --accent-green-dim: #3d8b6d;
+  --accent-green-glow: rgba(102, 179, 149, 0.3);
+  --accent-red: #ff8787;
+  --accent-red-dim: #cc6b6b;
+  --accent-red-glow: rgba(255, 135, 135, 0.3);
+
+  /* Text colors */
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+
+  /* Border colors */
+  --border-default: #30363d;
+  --border-muted: #21262d;
+  --border-emphasis: #484f58;
+
+  /* Node type colors */
+  --node-cidr: #58a6ff;
+  --node-cidr-glow: rgba(88, 166, 255, 0.3);
+  --node-server: #ff8787;
+  --node-server-glow: rgba(255, 135, 135, 0.3);
+  --node-pc: #66b395;
+  --node-pc-glow: rgba(102, 179, 149, 0.3);
+  --node-device: #d29922;
+  --node-device-glow: rgba(210, 153, 34, 0.3);
+
+  /* Grid background */
+  --grid-color: #21262d;
+  --grid-color-bold: #30363d;
+
+  /* === Typography === */
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  --font-sans: 'JetBrains Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Font sizes */
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+
+  /* Font weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* === Spacing === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* === Border radius === */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* === Shadows === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.7);
+
+  /* === Transitions === */
+  --transition-fast: 0.1s ease;
+  --transition-normal: 0.15s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* === Reset === */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* === Base styles === */
 html,
 body,
 #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: var(--bg-primary);
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-emphasis);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* === Selection === */
+::selection {
+  background: var(--accent-green);
+  color: var(--bg-primary);
+}
+
+/* === Focus styles === */
+:focus-visible {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 2px;
+}
+
+/* === Common utilities === */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

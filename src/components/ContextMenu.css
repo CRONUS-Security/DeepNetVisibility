@@ -1,0 +1,125 @@
+/* === Context Menu Container === */
+.context-menu {
+  position: fixed;
+  min-width: 200px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: 2000;
+  font-family: var(--font-mono);
+  overflow: hidden;
+  animation: contextMenuFadeIn 0.1s ease;
+}
+
+@keyframes contextMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* === Menu Header === */
+.context-menu-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.node-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--accent-green);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: var(--font-medium);
+}
+
+.node-type-badge svg {
+  font-size: 10px;
+}
+
+.node-label {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.node-ip {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* === Menu Items === */
+.context-menu-items {
+  padding: var(--space-1);
+}
+
+.context-menu-items button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.context-menu-items button:hover {
+  background: var(--bg-tertiary);
+}
+
+.context-menu-items button.danger:hover {
+  background: rgba(255, 135, 135, 0.15);
+  color: var(--accent-red);
+}
+
+.context-menu-items button svg {
+  width: 14px;
+  color: var(--text-secondary);
+}
+
+.context-menu-items button:hover svg {
+  color: var(--text-primary);
+}
+
+.context-menu-items button.danger:hover svg {
+  color: var(--accent-red);
+}
+
+.context-menu-items button kbd {
+  margin-left: auto;
+  padding: 2px 6px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.menu-divider {
+  height: 1px;
+  background: var(--border-default);
+  margin: var(--space-1) 0;
+}

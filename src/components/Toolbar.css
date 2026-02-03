@@ -1,0 +1,193 @@
+/* === Toolbar Container === */
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+  z-index: 1000;
+  font-family: var(--font-mono);
+}
+
+/* === Toolbar Sections === */
+.toolbar-left,
+.toolbar-center,
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.toolbar-left {
+  min-width: 200px;
+}
+
+.toolbar-right {
+  min-width: 200px;
+  justify-content: flex-end;
+}
+
+/* === Brand === */
+.toolbar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.brand-icon {
+  font-size: var(--text-lg);
+  color: var(--accent-green);
+}
+
+.brand-text {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+/* === Toolbar Button === */
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toolbar-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.toolbar-btn.active {
+  background: var(--bg-tertiary);
+  color: var(--accent-green);
+}
+
+.toolbar-btn .chevron {
+  font-size: 10px;
+  margin-left: var(--space-1);
+  transition: transform var(--transition-fast);
+}
+
+.toolbar-btn.active .chevron {
+  transform: rotate(180deg);
+}
+
+/* === Dropdown Menu === */
+.toolbar-menu {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  min-width: 200px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-1);
+  z-index: 1001;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-menu button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.dropdown-menu button:hover {
+  background: var(--bg-tertiary);
+}
+
+.dropdown-menu button.danger:hover {
+  background: rgba(255, 135, 135, 0.15);
+  color: var(--accent-red);
+}
+
+.dropdown-menu button svg {
+  width: 14px;
+  color: var(--text-secondary);
+}
+
+.dropdown-menu button:hover svg {
+  color: var(--text-primary);
+}
+
+.dropdown-menu button.danger:hover svg {
+  color: var(--accent-red);
+}
+
+.dropdown-menu button kbd {
+  margin-left: auto;
+  padding: 2px 6px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.menu-divider {
+  height: 1px;
+  background: var(--border-default);
+  margin: var(--space-1) 0;
+}
+
+/* === Statistics === */
+.toolbar-stats {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.toolbar-stats .stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.toolbar-stats .stat svg {
+  color: var(--accent-green);
+  font-size: var(--text-xs);
+}

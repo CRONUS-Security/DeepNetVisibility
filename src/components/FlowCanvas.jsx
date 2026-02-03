@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -16,8 +16,9 @@ import { CIDRNode } from './nodes/CIDRNode';
 import { ServerNode } from './nodes/ServerNode';
 import { PCNode } from './nodes/PCNode';
 import { DeviceNode } from './nodes/DeviceNode';
-import { ImportExport } from './ImportExport';
-import { ControlPanel } from './ControlPanel';
+import { Toolbar } from './Toolbar';
+import { ContextMenu } from './ContextMenu';
+import { NodeEditModal } from './NodeEditModal';
 
 import './FlowCanvas.css';
 
@@ -33,16 +34,23 @@ export const FlowCanvas = () => {
   const [nodes, setNodesState, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdgesState, onEdgesChange] = useEdgesState(initialEdges);
   const [isInitialized, setIsInitialized] = useState(false);
-  const { fitView } = useReactFlow();
+  const { fitView, setCenter } = useReactFlow();
 
-  // One-time initialization from store
+  const [contextMenu, setContextMenu] = useState(null);
+  const [editingNode, setEditingNode] = useState(null);
+
   useEffect(() => {
     if (!isInitialized && initialNodes.length > 0) {
       setNodesState(initialNodes);
       setEdgesState(initialEdges);
       setIsInitialized(true);
     }
-  }, [isInitialized]);
+  }, [isInitialized, initialNodes, initialEdges, setNodesState, setEdgesState]);
+
+  const stats = useMemo(() => ({
+    totalNodes: nodes.length,
+    totalEdges: edges.length,
+  }), [nodes.length, edges.length]);
 
   const handleNodesChange = useCallback(
     (changes) => {
@@ -67,11 +75,26 @@ export const FlowCanvas = () => {
   );
 
   const handleFitView = useCallback(() => {
-    fitView({ duration: 400 });
+    fitView({ duration: 400, padding: 0.2 });
   }, [fitView]);
 
   const handleAddNode = useCallback(
-    (newNode) => {
+    (type) => {
+      const newNode = {
+        id: `${type}-${Date.now()}`,
+        type,
+        position: {
+          x: Math.random() * 400 + 100,
+          y: Math.random() * 400 + 100,
+        },
+        data: {
+          label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+          description: '',
+          ip: '',
+          subType: type === 'server' ? 'other' : type === 'device' ? 'other' : null,
+          tags: {},
+        },
+      };
       setNodesState((nds) => [...nds, newNode]);
     },
     [setNodesState]
@@ -94,31 +117,161 @@ export const FlowCanvas = () => {
     return { nodes, edges };
   }, [nodes, edges]);
 
+  const handleNodeContextMenu = useCallback((event, node) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      node,
+    });
+  }, []);
+
+  const handlePaneClick = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
+  const handleCloseContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
+  const handleEditNode = useCallback((node) => {
+    setEditingNode(node);
+  }, []);
+
+  const handleSaveNode = useCallback(
+    (updatedNode) => {
+      setNodesState((nds) =>
+        nds.map((n) => (n.id === updatedNode.id ? updatedNode : n))
+      );
+    },
+    [setNodesState]
+  );
+
+  const handleDuplicateNode = useCallback(
+    (node) => {
+      const newNode = {
+        ...node,
+        id: `${node.type}-${Date.now()}`,
+        position: {
+          x: node.position.x + 50,
+          y: node.position.y + 50,
+        },
+        data: { ...node.data },
+      };
+      setNodesState((nds) => [...nds, newNode]);
+    },
+    [setNodesState]
+  );
+
+  const handleDeleteNode = useCallback(
+    (nodeId) => {
+      setNodesState((nds) => nds.filter((n) => n.id !== nodeId));
+      setEdgesState((eds) =>
+        eds.filter((e) => e.source !== nodeId && e.target !== nodeId)
+      );
+    },
+    [setNodesState, setEdgesState]
+  );
+
+  const handleFocusNode = useCallback(
+    (node) => {
+      setCenter(node.position.x + 100, node.position.y + 50, {
+        zoom: 1.5,
+        duration: 500,
+      });
+    },
+    [setCenter]
+  );
+
   return (
     <div className="flow-container">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={handleNodesChange}
-        onEdgesChange={handleEdgesChange}
-        onConnect={handleConnect}
-        nodeTypes={nodeTypes}
-        fitView
-      >
-        <Background color="#aaa" gap={16} />
-        <Controls />
-        <MiniMap position="bottom-left" />
-      </ReactFlow>
+      <Toolbar
+        onExport={handleExport}
+        onImport={handleImport}
+        onAddNode={handleAddNode}
+        onFitView={handleFitView}
+        onClearAll={handleClearAll}
+        stats={stats}
+      />
 
-      <div className="canvas-overlays">
-        <ImportExport onImport={handleImport} onExport={handleExport} />
-        <ControlPanel
-          onFitView={handleFitView}
+      <div className="flow-canvas-wrapper">
+        <ReactFlow
           nodes={nodes}
-          onAddNode={handleAddNode}
-          onClearAll={handleClearAll}
-        />
+          edges={edges}
+          onNodesChange={handleNodesChange}
+          onEdgesChange={handleEdgesChange}
+          onConnect={handleConnect}
+          onNodeContextMenu={handleNodeContextMenu}
+          onPaneClick={handlePaneClick}
+          nodeTypes={nodeTypes}
+          fitView
+          panOnScroll
+          panOnDrag
+          zoomOnScroll
+          zoomOnPinch
+          minZoom={0.1}
+          maxZoom={4}
+          translateExtent={[
+            [-Infinity, -Infinity],
+            [Infinity, Infinity],
+          ]}
+          nodeExtent={[
+            [-Infinity, -Infinity],
+            [Infinity, Infinity],
+          ]}
+          defaultEdgeOptions={{
+            type: 'smoothstep',
+            animated: false,
+          }}
+        >
+          <Background
+            variant="dots"
+            gap={20}
+            size={1}
+            color="#21262d"
+          />
+          <Controls position="bottom-right" />
+          <MiniMap
+            position="bottom-left"
+            nodeColor={(node) => {
+              switch (node.type) {
+                case 'cidr':
+                  return '#58a6ff';
+                case 'server':
+                  return '#ff8787';
+                case 'pc':
+                  return '#66b395';
+                case 'device':
+                  return '#d29922';
+                default:
+                  return '#30363d';
+              }
+            }}
+            maskColor="rgba(13, 17, 23, 0.8)"
+          />
+        </ReactFlow>
       </div>
+
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          node={contextMenu.node}
+          onEdit={handleEditNode}
+          onDuplicate={handleDuplicateNode}
+          onDelete={handleDeleteNode}
+          onFocus={handleFocusNode}
+          onClose={handleCloseContextMenu}
+        />
+      )}
+
+      {editingNode && (
+        <NodeEditModal
+          node={editingNode}
+          onSave={handleSaveNode}
+          onClose={() => setEditingNode(null)}
+        />
+      )}
     </div>
   );
 };

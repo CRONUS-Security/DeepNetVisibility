@@ -1,119 +1,233 @@
+/* === Node Base Styles === */
 .node {
-  padding: 12px;
-  border-radius: 8px;
-  border: 2px solid #ddd;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  min-width: 200px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-default);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+  min-width: 220px;
+  font-family: var(--font-mono);
+  transition: all var(--transition-normal);
 }
 
 .node:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-emphasis);
 }
 
 .node.selected {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  border-color: var(--accent-green);
+  box-shadow: 0 0 0 1px var(--accent-green), var(--shadow-lg);
 }
 
+/* === Node Header === */
 .node-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #1f2937;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-muted);
 }
 
 .node-icon {
-  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
 }
 
 .node-title {
-  font-size: 14px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* === Node Content === */
 .node-content {
-  font-size: 12px;
-  margin-bottom: 8px;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-2);
 }
 
 .node-description {
-  color: #666;
-  margin-bottom: 4px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+  line-height: 1.4;
 }
 
 .node-info {
-  color: #999;
-  font-size: 11px;
-  font-family: 'Courier New', monospace;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  background: var(--bg-tertiary);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
 }
 
+.node-info svg {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+/* === Node Tags === */
 .node-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
 }
 
 .tag {
-  display: inline-block;
-  background-color: #e5e7eb;
-  color: #374151;
-  padding: 2px 6px;
-  border-radius: 12px;
-  font-size: 10px;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
   white-space: nowrap;
+  border: 1px solid var(--border-muted);
+  transition: all var(--transition-fast);
+}
+
+.tag:hover {
+  border-color: var(--border-default);
+  background-color: var(--bg-elevated);
 }
 
 /* Tag colors by category */
 .tag-os {
-  background-color: #dbeafe;
-  color: #0c4a6e;
+  background-color: rgba(88, 166, 255, 0.15);
+  color: var(--node-cidr);
+  border-color: rgba(88, 166, 255, 0.3);
 }
 
 .tag-domain {
-  background-color: #fce7f3;
-  color: #831843;
+  background-color: rgba(255, 135, 135, 0.15);
+  color: var(--accent-red);
+  border-color: rgba(255, 135, 135, 0.3);
 }
 
 .tag-service {
-  background-color: #fed7aa;
-  color: #7c2d12;
+  background-color: rgba(210, 153, 34, 0.15);
+  color: var(--node-device);
+  border-color: rgba(210, 153, 34, 0.3);
 }
 
 .tag-risk {
-  background-color: #fee2e2;
-  color: #7f1d1d;
+  background-color: rgba(255, 135, 135, 0.2);
+  color: var(--accent-red);
+  border-color: rgba(255, 135, 135, 0.4);
+}
+
+.tag-risk.tag-secured {
+  background-color: rgba(102, 179, 149, 0.15);
+  color: var(--accent-green);
+  border-color: rgba(102, 179, 149, 0.3);
 }
 
 .tag-custom {
-  background-color: #e9d5ff;
-  color: #4a148c;
+  background-color: rgba(139, 148, 158, 0.15);
+  color: var(--text-secondary);
+  border-color: rgba(139, 148, 158, 0.3);
 }
 
-/* Node type specific styles */
+/* === Node Type Specific Styles === */
 .cidr-node {
-  border-color: #2563eb;
-  background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%);
+  border-color: var(--node-cidr);
+}
+
+.cidr-node .node-icon {
+  background: rgba(88, 166, 255, 0.15);
+  color: var(--node-cidr);
+}
+
+.cidr-node.selected {
+  border-color: var(--node-cidr);
+  box-shadow: 0 0 0 1px var(--node-cidr), 0 0 20px var(--node-cidr-glow);
 }
 
 .server-node {
-  border-color: #dc2626;
-  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+  border-color: var(--node-server);
+}
+
+.server-node .node-icon {
+  background: rgba(255, 135, 135, 0.15);
+  color: var(--node-server);
+}
+
+.server-node.selected {
+  border-color: var(--node-server);
+  box-shadow: 0 0 0 1px var(--node-server), 0 0 20px var(--node-server-glow);
 }
 
 .pc-node {
-  border-color: #16a34a;
-  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border-color: var(--node-pc);
+}
+
+.pc-node .node-icon {
+  background: rgba(102, 179, 149, 0.15);
+  color: var(--node-pc);
+}
+
+.pc-node.selected {
+  border-color: var(--node-pc);
+  box-shadow: 0 0 0 1px var(--node-pc), 0 0 20px var(--node-pc-glow);
 }
 
 .device-node {
-  border-color: #f59e0b;
-  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+  border-color: var(--node-device);
+}
+
+.device-node .node-icon {
+  background: rgba(210, 153, 34, 0.15);
+  color: var(--node-device);
+}
+
+.device-node.selected {
+  border-color: var(--node-device);
+  box-shadow: 0 0 0 1px var(--node-device), 0 0 20px var(--node-device-glow);
+}
+
+/* === ReactFlow Handle Styles === */
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-emphasis);
+  transition: all var(--transition-fast);
+}
+
+.react-flow__handle:hover {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  transform: scale(1.2);
+}
+
+.react-flow__handle-top {
+  top: -5px;
+}
+
+.react-flow__handle-bottom {
+  bottom: -5px;
+}
+
+.react-flow__handle-left {
+  left: -5px;
+}
+
+.react-flow__handle-right {
+  right: -5px;
 }
