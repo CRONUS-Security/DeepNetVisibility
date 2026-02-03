@@ -184,6 +184,25 @@ export const FlowCanvas = () => {
     [setCenter]
   );
 
+  const handleTogglePwned = useCallback(
+    (node) => {
+      setNodesState((nds) =>
+        nds.map((n) =>
+          n.id === node.id
+            ? {
+                ...n,
+                data: {
+                  ...n.data,
+                  pwned: !n.data.pwned,
+                },
+              }
+            : n
+        )
+      );
+    },
+    [setNodesState]
+  );
+
   const handleApplyLayout = useCallback(
     (layoutType) => {
       if (layoutType === LayoutTypes.CIDR_TREE) {
@@ -279,6 +298,7 @@ export const FlowCanvas = () => {
           onDuplicate={handleDuplicateNode}
           onDelete={handleDeleteNode}
           onFocus={handleFocusNode}
+          onTogglePwned={handleTogglePwned}
           onClose={handleCloseContextMenu}
         />
       )}

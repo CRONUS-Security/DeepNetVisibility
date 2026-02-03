@@ -1,12 +1,12 @@
 import React from 'react';
 import { Handle, Position } from 'reactflow';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faNetworkWired, faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faNetworkWired, faLocationDot, faSkull } from '@fortawesome/free-solid-svg-icons';
 import './NodeStyles.css';
 
 export const CIDRNode = ({ data, selected }) => {
   return (
-    <div className={`node cidr-node ${selected ? 'selected' : ''}`}>
+    <div className={`node cidr-node ${selected ? 'selected' : ''} ${data.pwned ? 'pwned' : ''}`}>
       <div className="node-header">
         <span className="node-icon">
           <FontAwesomeIcon icon={faNetworkWired} />
@@ -33,6 +33,11 @@ export const CIDRNode = ({ data, selected }) => {
               </span>
             ))
           )}
+        </div>
+      )}
+      {data.pwned && (
+        <div className="pwned-indicator" title="Pwned">
+          <FontAwesomeIcon icon={faSkull} />
         </div>
       )}
       <Handle type="target" position={Position.Top} />

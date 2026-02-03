@@ -123,3 +123,30 @@
   background: var(--border-default);
   margin: var(--space-1) 0;
 }
+
+/* === Pwned Button Styles === */
+.context-menu-items button.pwned:hover {
+  background: rgba(255, 100, 100, 0.2);
+  color: #ff6b6b;
+}
+
+.context-menu-items button.pwned:hover svg {
+  color: #ff6b6b;
+}
+
+.context-menu-items button.pwned-active {
+  color: #ff6b6b;
+}
+
+.context-menu-items button.pwned-active svg {
+  color: #ff6b6b;
+}
+
+.context-menu-items button.pwned-active:hover {
+  background: rgba(102, 179, 149, 0.2);
+  color: var(--accent-green);
+}
+
+.context-menu-items button.pwned-active:hover svg {
+  color: var(--accent-green);
+}

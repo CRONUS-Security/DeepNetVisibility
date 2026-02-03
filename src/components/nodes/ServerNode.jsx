@@ -9,6 +9,7 @@ import {
   faEnvelope,
   faServer,
   faLocationDot,
+  faSkull,
 } from '@fortawesome/free-solid-svg-icons';
 import './NodeStyles.css';
 
@@ -25,7 +26,7 @@ export const ServerNode = ({ data, selected }) => {
   const icon = serverIcons[data.subType] || serverIcons.other;
 
   return (
-    <div className={`node server-node ${selected ? 'selected' : ''}`}>
+    <div className={`node server-node ${selected ? 'selected' : ''} ${data.pwned ? 'pwned' : ''}`}>
       <div className="node-header">
         <span className="node-icon">
           <FontAwesomeIcon icon={icon} />
@@ -52,6 +53,11 @@ export const ServerNode = ({ data, selected }) => {
               </span>
             ))
           )}
+        </div>
+      )}
+      {data.pwned && (
+        <div className="pwned-indicator" title="Pwned">
+          <FontAwesomeIcon icon={faSkull} />
         </div>
       )}
       <Handle type="target" position={Position.Top} />

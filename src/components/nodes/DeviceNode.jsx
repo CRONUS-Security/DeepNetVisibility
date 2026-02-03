@@ -8,6 +8,7 @@ import {
   faShield,
   faGear,
   faLocationDot,
+  faSkull,
 } from '@fortawesome/free-solid-svg-icons';
 import './NodeStyles.css';
 
@@ -24,7 +25,7 @@ export const DeviceNode = ({ data, selected }) => {
   const icon = deviceIcons[data.subType] || deviceIcons.other;
 
   return (
-    <div className={`node device-node ${selected ? 'selected' : ''}`}>
+    <div className={`node device-node ${selected ? 'selected' : ''} ${data.pwned ? 'pwned' : ''}`}>
       <div className="node-header">
         <span className="node-icon">
           <FontAwesomeIcon icon={icon} />
@@ -51,6 +52,11 @@ export const DeviceNode = ({ data, selected }) => {
               </span>
             ))
           )}
+        </div>
+      )}
+      {data.pwned && (
+        <div className="pwned-indicator" title="Pwned">
+          <FontAwesomeIcon icon={faSkull} />
         </div>
       )}
       <Handle type="target" position={Position.Top} />

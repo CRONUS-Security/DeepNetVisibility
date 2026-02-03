@@ -9,6 +9,8 @@ import {
   faServer,
   faDesktop,
   faGear,
+  faSkull,
+  faShieldHalved,
 } from '@fortawesome/free-solid-svg-icons';
 import './ContextMenu.css';
 
@@ -34,6 +36,7 @@ export const ContextMenu = ({
   onDuplicate,
   onDelete,
   onFocus,
+  onTogglePwned,
   onClose,
 }) => {
   const menuRef = useRef(null);
@@ -117,6 +120,20 @@ export const ContextMenu = ({
           <FontAwesomeIcon icon={faExpand} />
           <span>Focus on Node</span>
           <kbd>F</kbd>
+        </button>
+
+        <div className="menu-divider" />
+
+        <button
+          className={node.data?.pwned ? 'pwned-active' : 'pwned'}
+          onClick={() => {
+            onTogglePwned(node);
+            onClose();
+          }}
+        >
+          <FontAwesomeIcon icon={node.data?.pwned ? faShieldHalved : faSkull} />
+          <span>{node.data?.pwned ? 'Mark as Secured' : 'Mark as Pwned'}</span>
+          <kbd>P</kbd>
         </button>
 
         <div className="menu-divider" />
