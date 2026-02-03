@@ -271,6 +271,8 @@ function radialLayout(nodes, edges) {
  * CIDR Tree layout - arranges nodes based on IP/CIDR hierarchy
  * Creates a tree structure: Internet/Root -> larger CIDRs -> smaller CIDRs -> IP nodes
  *
+ * Optimized for clean vertical alignment and straight connections
+ *
  * @param {Array} nodes - ReactFlow nodes
  * @param {Array} edges - ReactFlow edges (optional, will auto-generate if needed)
  * @returns {{ nodes: Array, edges: Array }} - Nodes with positions and hierarchy edges
@@ -282,6 +284,7 @@ function cidrTreeLayout(nodes, edges) {
   const { edges: hierarchyEdges, hierarchy } = buildCIDRHierarchy(nodes);
 
   // Merge hierarchy edges with existing non-auto edges
+  // Configure edges for straight vertical connections
   const manualEdges = edges.filter((e) => !e.data?.auto);
   const edgeSet = new Set(manualEdges.map((e) => `${e.source}-${e.target}`));
   const mergedEdges = [...manualEdges];
@@ -290,7 +293,12 @@ function cidrTreeLayout(nodes, edges) {
     const key = `${edge.source}-${edge.target}`;
     const reverseKey = `${edge.target}-${edge.source}`;
     if (!edgeSet.has(key) && !edgeSet.has(reverseKey)) {
-      mergedEdges.push(edge);
+      // Configure edge for straight vertical connection
+      mergedEdges.push({
+        ...edge,
+        type: 'straight',
+        style: { stroke: '#58a6ff', strokeWidth: 2 },
+      });
       edgeSet.add(key);
     }
   }
@@ -324,46 +332,36 @@ function cidrTreeLayout(nodes, edges) {
     return 0;
   });
 
-  // Calculate tree depth and width for each subtree
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
-
-  function getSubtreeInfo(nodeId, depth = 0) {
-    const childIds = children.get(nodeId) || [];
-
-    if (childIds.length === 0) {
-      return { depth: depth, width: 1, maxDepth: depth };
-    }
-
-    let totalWidth = 0;
-    let maxChildDepth = depth;
-
-    for (const childId of childIds) {
-      const info = getSubtreeInfo(childId, depth + 1);
-      totalWidth += info.width;
-      maxChildDepth = Math.max(maxChildDepth, info.maxDepth);
-    }
-
-    return { depth, width: totalWidth, maxDepth: maxChildDepth };
-  }
 
   // Layout parameters
   const LEVEL_HEIGHT = 150;
-  const NODE_WIDTH_SPACING = 220;
-  const SUBTREE_PADDING = 40;
+  const NODE_SPACING = 220; // Horizontal spacing between leaf nodes
+  const MIN_SUBTREE_GAP = 60; // Minimum gap between subtrees
 
-  // Position nodes using recursive algorithm
-  const positions = new Map();
+  // First pass: Calculate the width (in leaf node units) of each subtree
+  const subtreeWidths = new Map();
 
-  function layoutSubtree(nodeId, startX, depth) {
+  function calculateSubtreeWidth(nodeId) {
     const childIds = children.get(nodeId) || [];
-
     if (childIds.length === 0) {
-      positions.set(nodeId, { x: startX, y: depth * LEVEL_HEIGHT + 50 });
-      return NODE_WIDTH_SPACING;
+      subtreeWidths.set(nodeId, 1);
+      return 1;
     }
 
-    // Sort children: CIDR nodes first, then by name
-    const sortedChildren = [...childIds].sort((aId, bId) => {
+    // Sort children consistently
+    const sortedChildren = sortChildren(childIds, nodeMap);
+    let totalWidth = 0;
+    for (const childId of sortedChildren) {
+      totalWidth += calculateSubtreeWidth(childId);
+    }
+    subtreeWidths.set(nodeId, totalWidth);
+    return totalWidth;
+  }
+
+  // Helper to sort children: CIDR nodes first, then by IP/label
+  function sortChildren(childIds, nodeMap) {
+    return [...childIds].sort((aId, bId) => {
       const a = nodeMap.get(aId);
       const b = nodeMap.get(bId);
       if (!a || !b) return 0;
@@ -373,30 +371,84 @@ function cidrTreeLayout(nodes, edges) {
       if (aIsCidr && !bIsCidr) return -1;
       if (!aIsCidr && bIsCidr) return 1;
 
+      // For CIDR nodes, sort by prefix (larger networks first)
+      if (aIsCidr && bIsCidr) {
+        const aCidr = getNodeCIDR(a);
+        const bCidr = getNodeCIDR(b);
+        const aPrefix = aCidr ? parseCIDR(aCidr)?.prefix ?? 32 : 32;
+        const bPrefix = bCidr ? parseCIDR(bCidr)?.prefix ?? 32 : 32;
+        if (aPrefix !== bPrefix) return aPrefix - bPrefix;
+      }
+
       return (a.data?.label || '').localeCompare(b.data?.label || '');
     });
+  }
 
-    // Layout children
-    let currentX = startX;
-    for (const childId of sortedChildren) {
-      const width = layoutSubtree(childId, currentX, depth + 1);
-      currentX += width + SUBTREE_PADDING;
+  // Calculate widths for all roots first
+  for (const root of roots) {
+    calculateSubtreeWidth(root.id);
+  }
+
+  // Second pass: Position nodes with proper centering
+  const positions = new Map();
+
+  function layoutSubtree(nodeId, leftX, depth) {
+    const childIds = children.get(nodeId) || [];
+    const width = subtreeWidths.get(nodeId) || 1;
+    const totalWidth = width * NODE_SPACING;
+
+    if (childIds.length === 0) {
+      // Leaf node: position at center of its allocated space
+      const centerX = leftX + totalWidth / 2 - NODE_WIDTH / 2;
+      positions.set(nodeId, { x: centerX, y: depth * LEVEL_HEIGHT + 50 });
+      return;
     }
 
-    const totalWidth = currentX - startX - SUBTREE_PADDING;
+    const sortedChildren = sortChildren(childIds, nodeMap);
 
-    // Center parent above children
-    const centerX = startX + totalWidth / 2 - NODE_WIDTH / 2;
-    positions.set(nodeId, { x: centerX, y: depth * LEVEL_HEIGHT + 50 });
+    // Layout children from left to right
+    let currentX = leftX;
+    const childCenters = [];
 
-    return totalWidth;
+    for (const childId of sortedChildren) {
+      const childWidth = subtreeWidths.get(childId) || 1;
+      const childTotalWidth = childWidth * NODE_SPACING;
+
+      layoutSubtree(childId, currentX, depth + 1);
+
+      // Record the center position of each child for parent centering
+      const childPos = positions.get(childId);
+      if (childPos) {
+        childCenters.push(childPos.x + NODE_WIDTH / 2);
+      }
+
+      currentX += childTotalWidth;
+    }
+
+    // Position parent node at the center of its children
+    // Use the average of first and last child centers for perfect alignment
+    let parentCenterX;
+    if (childCenters.length > 0) {
+      const firstChildCenter = childCenters[0];
+      const lastChildCenter = childCenters[childCenters.length - 1];
+      parentCenterX = (firstChildCenter + lastChildCenter) / 2;
+    } else {
+      parentCenterX = leftX + totalWidth / 2;
+    }
+
+    positions.set(nodeId, {
+      x: parentCenterX - NODE_WIDTH / 2,
+      y: depth * LEVEL_HEIGHT + 50,
+    });
   }
 
   // Layout all root subtrees
   let currentX = 100;
   for (const root of roots) {
-    const width = layoutSubtree(root.id, currentX, 0);
-    currentX += width + SUBTREE_PADDING * 2;
+    const rootWidth = subtreeWidths.get(root.id) || 1;
+    const rootTotalWidth = rootWidth * NODE_SPACING;
+    layoutSubtree(root.id, currentX, 0);
+    currentX += rootTotalWidth + MIN_SUBTREE_GAP;
   }
 
   // Handle orphan nodes (not connected to hierarchy at all)
@@ -405,7 +457,7 @@ function cidrTreeLayout(nodes, edges) {
     const maxY = Math.max(...Array.from(positions.values()).map((p) => p.y), 0);
     const orphanY = maxY + LEVEL_HEIGHT + 50;
     orphans.forEach((node, i) => {
-      positions.set(node.id, { x: 100 + i * NODE_WIDTH_SPACING, y: orphanY });
+      positions.set(node.id, { x: 100 + i * NODE_SPACING, y: orphanY });
     });
   }
 
