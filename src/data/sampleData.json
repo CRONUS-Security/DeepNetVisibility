@@ -3,203 +3,477 @@
   "timestamp": "2026-02-03T00:00:00.000Z",
   "nodes": [
     {
-      "id": "cidr-1",
+      "id": "cidr-internet",
       "type": "cidr",
-      "position": {
-        "x": 0,
-        "y": 0
-      },
+      "position": { "x": 0, "y": 0 },
       "data": {
-        "label": "192.168.1.0/24",
-        "description": "Corporate Network",
+        "label": "Internet",
+        "description": "External Network",
+        "tags": { "risk": ["external"] },
+        "metadata": {}
+      }
+    },
+    {
+      "id": "device-edge-router",
+      "type": "device",
+      "position": { "x": 0, "y": 150 },
+      "data": {
+        "label": "EDGE-RTR-01",
+        "description": "Edge Router",
+        "ip": "203.0.113.1",
+        "subType": "router",
+        "tags": { "risk": ["critical"] },
+        "metadata": { "model": "Cisco ISR 4451" }
+      }
+    },
+    {
+      "id": "device-firewall",
+      "type": "device",
+      "position": { "x": 0, "y": 300 },
+      "data": {
+        "label": "FW-01",
+        "description": "Perimeter Firewall",
+        "ip": "10.0.0.1",
+        "subType": "firewall",
+        "tags": { "risk": ["critical"], "service": ["firewall"] },
+        "metadata": { "model": "Palo Alto PA-3260" }
+      }
+    },
+    {
+      "id": "cidr-dmz",
+      "type": "cidr",
+      "position": { "x": -400, "y": 450 },
+      "data": {
+        "label": "172.16.0.0/24",
+        "description": "DMZ Network",
+        "tags": { "risk": ["exposed"] },
+        "metadata": {}
+      }
+    },
+    {
+      "id": "device-waf",
+      "type": "device",
+      "position": { "x": -500, "y": 600 },
+      "data": {
+        "label": "WAF-01",
+        "description": "Web Application Firewall",
+        "ip": "172.16.0.5",
+        "subType": "waf",
+        "tags": { "service": ["waf"] },
+        "metadata": { "model": "F5 BIG-IP ASM" }
+      }
+    },
+    {
+      "id": "server-web",
+      "type": "server",
+      "position": { "x": -400, "y": 750 },
+      "data": {
+        "label": "WEB-01",
+        "description": "Public Web Server",
+        "ip": "172.16.0.10",
+        "subType": "web",
+        "tags": { "os": ["Linux"], "service": ["nginx", "nodejs"], "risk": ["exposed"] },
+        "metadata": { "hostname": "web01.corp.com", "osVersion": "Ubuntu 22.04 LTS" }
+      }
+    },
+    {
+      "id": "server-mail",
+      "type": "server",
+      "position": { "x": -300, "y": 750 },
+      "data": {
+        "label": "MAIL-01",
+        "description": "Mail Server",
+        "ip": "172.16.0.20",
+        "subType": "mail",
+        "tags": { "os": ["Linux"], "service": ["postfix", "dovecot"], "risk": ["exposed"] },
+        "metadata": { "hostname": "mail01.corp.com", "osVersion": "CentOS 8" }
+      }
+    },
+    {
+      "id": "device-core-switch",
+      "type": "device",
+      "position": { "x": 0, "y": 450 },
+      "data": {
+        "label": "CORE-SW-01",
+        "description": "Core Layer 3 Switch",
+        "ip": "10.0.0.2",
+        "subType": "switch",
+        "tags": { "risk": ["critical"] },
+        "metadata": { "model": "Cisco Catalyst 9500" }
+      }
+    },
+    {
+      "id": "device-ids",
+      "type": "device",
+      "position": { "x": 150, "y": 450 },
+      "data": {
+        "label": "IDS-01",
+        "description": "Intrusion Detection System",
+        "ip": "10.0.0.10",
+        "subType": "ids_ips",
+        "tags": { "service": ["snort"] },
+        "metadata": { "model": "Cisco Firepower" }
+      }
+    },
+    {
+      "id": "cidr-servers",
+      "type": "cidr",
+      "position": { "x": 200, "y": 600 },
+      "data": {
+        "label": "10.10.1.0/24",
+        "description": "Server VLAN",
         "tags": {},
         "metadata": {}
       }
     },
     {
-      "id": "dc-1",
+      "id": "server-dc",
       "type": "server",
-      "position": {
-        "x": -200,
-        "y": 150
-      },
+      "position": { "x": 100, "y": 750 },
       "data": {
-        "label": "DC01",
-        "description": "Domain Controller",
-        "ip": "192.168.1.10",
+        "label": "DC-01",
+        "description": "Primary Domain Controller",
+        "ip": "10.10.1.10",
         "subType": "dc",
-        "tags": {
-          "os": ["windows"],
-          "domain": ["domain_controller"],
-          "risk": ["secured"]
-        },
-        "metadata": {
-          "hostname": "DC01.corp.com",
-          "osVersion": "Windows Server 2022"
-        }
+        "tags": { "os": ["Windows"], "domain": ["domain_controller"], "service": ["AD", "DNS", "DHCP"], "risk": ["critical"] },
+        "metadata": { "hostname": "DC01.corp.local", "osVersion": "Windows Server 2022" }
       }
     },
     {
-      "id": "web-1",
+      "id": "server-dc2",
       "type": "server",
-      "position": {
-        "x": 0,
-        "y": 150
-      },
+      "position": { "x": 200, "y": 750 },
       "data": {
-        "label": "WEB01",
-        "description": "Web Server",
-        "ip": "192.168.1.20",
-        "subType": "web",
-        "tags": {
-          "os": ["linux"],
-          "service": ["web_server"],
-          "risk": ["exposed"]
-        },
-        "metadata": {
-          "hostname": "web01.corp.com",
-          "osVersion": "Ubuntu 22.04 LTS"
-        }
+        "label": "DC-02",
+        "description": "Secondary Domain Controller",
+        "ip": "10.10.1.11",
+        "subType": "dc",
+        "tags": { "os": ["Windows"], "domain": ["domain_controller"], "service": ["AD", "DNS"], "risk": ["critical"] },
+        "metadata": { "hostname": "DC02.corp.local", "osVersion": "Windows Server 2022" }
       }
     },
     {
-      "id": "db-1",
+      "id": "server-file",
       "type": "server",
-      "position": {
-        "x": 200,
-        "y": 150
-      },
+      "position": { "x": 300, "y": 750 },
       "data": {
-        "label": "DB01",
+        "label": "FS-01",
+        "description": "File Server",
+        "ip": "10.10.1.20",
+        "subType": "file",
+        "tags": { "os": ["Windows"], "domain": ["domain_member"], "service": ["SMB"] },
+        "metadata": { "hostname": "FS01.corp.local", "osVersion": "Windows Server 2019" }
+      }
+    },
+    {
+      "id": "server-db",
+      "type": "server",
+      "position": { "x": 400, "y": 750 },
+      "data": {
+        "label": "DB-01",
         "description": "Database Server",
-        "ip": "192.168.1.30",
+        "ip": "10.10.1.30",
         "subType": "database",
-        "tags": {
-          "os": ["windows"],
-          "service": ["sqlserver"],
-          "domain": ["domain_member"],
-          "risk": ["unpatched"]
-        },
-        "metadata": {
-          "hostname": "DB01.corp.com",
-          "osVersion": "Windows Server 2019"
-        }
+        "tags": { "os": ["Linux"], "service": ["PostgreSQL"], "risk": ["sensitive"] },
+        "metadata": { "hostname": "db01.corp.local", "osVersion": "RHEL 9" }
       }
     },
     {
-      "id": "pc-1",
+      "id": "server-backup",
+      "type": "server",
+      "position": { "x": 500, "y": 750 },
+      "data": {
+        "label": "BKP-01",
+        "description": "Backup Server",
+        "ip": "10.10.1.40",
+        "subType": "other",
+        "tags": { "os": ["Linux"], "service": ["Veeam"], "risk": ["critical"] },
+        "metadata": { "hostname": "backup01.corp.local", "osVersion": "Ubuntu 22.04 LTS" }
+      }
+    },
+    {
+      "id": "cidr-mgmt",
+      "type": "cidr",
+      "position": { "x": 600, "y": 450 },
+      "data": {
+        "label": "10.10.2.0/24",
+        "description": "Management VLAN",
+        "tags": { "risk": ["restricted"] },
+        "metadata": {}
+      }
+    },
+    {
+      "id": "server-monitor",
+      "type": "server",
+      "position": { "x": 600, "y": 600 },
+      "data": {
+        "label": "MON-01",
+        "description": "Monitoring Server",
+        "ip": "10.10.2.10",
+        "subType": "other",
+        "tags": { "os": ["Linux"], "service": ["Prometheus", "Grafana"] },
+        "metadata": { "hostname": "monitor01.corp.local", "osVersion": "Debian 12" }
+      }
+    },
+    {
+      "id": "pc-admin",
       "type": "pc",
-      "position": {
-        "x": -300,
-        "y": 300
-      },
+      "position": { "x": 700, "y": 600 },
       "data": {
-        "label": "WORK-01",
-        "description": "Employee Workstation",
-        "ip": "192.168.1.101",
-        "tags": {
-          "os": ["windows"],
-          "domain": ["domain_member"]
-        },
-        "metadata": {
-          "hostname": "work-01.corp.com",
-          "osVersion": "Windows 11"
-        }
+        "label": "ADMIN-PC-01",
+        "description": "IT Administrator Workstation",
+        "ip": "10.10.2.100",
+        "tags": { "os": ["Windows"], "domain": ["domain_member"], "risk": ["privileged"] },
+        "metadata": { "hostname": "ADMIN-PC-01.corp.local", "osVersion": "Windows 11 Pro" }
       }
     },
     {
-      "id": "device-1",
-      "type": "device",
-      "position": {
-        "x": 300,
-        "y": 300
-      },
+      "id": "cidr-workstations",
+      "type": "cidr",
+      "position": { "x": -200, "y": 600 },
       "data": {
-        "label": "FW-01",
-        "description": "Firewall",
-        "ip": "192.168.1.1",
-        "subType": "firewall",
-        "tags": {
-          "risk": ["secured"]
-        },
-        "metadata": {
-          "model": "Cisco ASA"
-        }
+        "label": "10.10.10.0/24",
+        "description": "Workstation VLAN",
+        "tags": {},
+        "metadata": {}
+      }
+    },
+    {
+      "id": "pc-work1",
+      "type": "pc",
+      "position": { "x": -300, "y": 900 },
+      "data": {
+        "label": "WS-001",
+        "description": "Finance Department",
+        "ip": "10.10.10.101",
+        "tags": { "os": ["Windows"], "domain": ["domain_member"], "custom": ["Finance"] },
+        "metadata": { "hostname": "WS-001.corp.local", "osVersion": "Windows 11" }
+      }
+    },
+    {
+      "id": "pc-work2",
+      "type": "pc",
+      "position": { "x": -200, "y": 900 },
+      "data": {
+        "label": "WS-002",
+        "description": "HR Department",
+        "ip": "10.10.10.102",
+        "tags": { "os": ["Windows"], "domain": ["domain_member"], "custom": ["HR"] },
+        "metadata": { "hostname": "WS-002.corp.local", "osVersion": "Windows 11" }
+      }
+    },
+    {
+      "id": "pc-work3",
+      "type": "pc",
+      "position": { "x": -100, "y": 900 },
+      "data": {
+        "label": "WS-003",
+        "description": "Development Team",
+        "ip": "10.10.10.103",
+        "tags": { "os": ["macOS"], "custom": ["Development"] },
+        "metadata": { "hostname": "WS-003.corp.local", "osVersion": "macOS Sonoma" }
+      }
+    },
+    {
+      "id": "pc-work4",
+      "type": "pc",
+      "position": { "x": 0, "y": 900 },
+      "data": {
+        "label": "WS-004",
+        "description": "Development Team",
+        "ip": "10.10.10.104",
+        "tags": { "os": ["Linux"], "custom": ["Development"] },
+        "metadata": { "hostname": "WS-004.corp.local", "osVersion": "Ubuntu 24.04" }
+      }
+    },
+    {
+      "id": "device-access-switch",
+      "type": "device",
+      "position": { "x": -150, "y": 750 },
+      "data": {
+        "label": "ACC-SW-01",
+        "description": "Access Layer Switch",
+        "ip": "10.10.10.1",
+        "subType": "switch",
+        "tags": {},
+        "metadata": { "model": "Cisco Catalyst 9200" }
       }
     }
   ],
   "edges": [
     {
-      "id": "edge-cidr-1-dc-1",
-      "source": "cidr-1",
-      "target": "dc-1",
-      "data": {
-        "label": "contains",
-        "type": "contains"
-      }
+      "id": "edge-internet-router",
+      "source": "cidr-internet",
+      "target": "device-edge-router",
+      "data": { "label": "uplink", "type": "connects" }
     },
     {
-      "id": "edge-cidr-1-web-1",
-      "source": "cidr-1",
-      "target": "web-1",
-      "data": {
-        "label": "contains",
-        "type": "contains"
-      }
+      "id": "edge-router-fw",
+      "source": "device-edge-router",
+      "target": "device-firewall",
+      "data": { "label": "10Gbps", "type": "connects" }
     },
     {
-      "id": "edge-cidr-1-db-1",
-      "source": "cidr-1",
-      "target": "db-1",
-      "data": {
-        "label": "contains",
-        "type": "contains"
-      }
+      "id": "edge-fw-core",
+      "source": "device-firewall",
+      "target": "device-core-switch",
+      "data": { "label": "trunk", "type": "connects" }
     },
     {
-      "id": "edge-cidr-1-pc-1",
-      "source": "cidr-1",
-      "target": "pc-1",
-      "data": {
-        "label": "contains",
-        "type": "contains"
-      }
+      "id": "edge-fw-dmz",
+      "source": "device-firewall",
+      "target": "cidr-dmz",
+      "data": { "label": "DMZ zone", "type": "connects" }
     },
     {
-      "id": "edge-cidr-1-device-1",
-      "source": "cidr-1",
-      "target": "device-1",
-      "data": {
-        "label": "contains",
-        "type": "contains"
-      }
+      "id": "edge-dmz-waf",
+      "source": "cidr-dmz",
+      "target": "device-waf",
+      "data": { "label": "contains", "type": "contains" }
     },
     {
-      "id": "edge-dc-1-web-1",
-      "source": "dc-1",
-      "target": "web-1",
-      "data": {
-        "label": "auth",
-        "type": "connects"
-      }
+      "id": "edge-waf-web",
+      "source": "device-waf",
+      "target": "server-web",
+      "data": { "label": "proxies", "type": "connects" }
     },
     {
-      "id": "edge-web-1-db-1",
-      "source": "web-1",
-      "target": "db-1",
-      "data": {
-        "label": "queries",
-        "type": "depends_on"
-      }
+      "id": "edge-dmz-mail",
+      "source": "cidr-dmz",
+      "target": "server-mail",
+      "data": { "label": "contains", "type": "contains" }
     },
     {
-      "id": "edge-device-1-web-1",
-      "source": "device-1",
-      "target": "web-1",
-      "data": {
-        "label": "routes",
-        "type": "connects"
-      }
+      "id": "edge-core-ids",
+      "source": "device-core-switch",
+      "target": "device-ids",
+      "data": { "label": "SPAN", "type": "connects" }
+    },
+    {
+      "id": "edge-core-servers",
+      "source": "device-core-switch",
+      "target": "cidr-servers",
+      "data": { "label": "VLAN 10", "type": "connects" }
+    },
+    {
+      "id": "edge-servers-dc1",
+      "source": "cidr-servers",
+      "target": "server-dc",
+      "data": { "label": "contains", "type": "contains" }
+    },
+    {
+      "id": "edge-servers-dc2",
+      "source": "cidr-servers",
+      "target": "server-dc2",
+      "data": { "label": "contains", "type": "contains" }
+    },
+    {
+      "id": "edge-servers-file",
+      "source": "cidr-servers",
+      "target": "server-file",
+      "data": { "label": "contains", "type": "contains" }
+    },
+    {
+      "id": "edge-servers-db",
+      "source": "cidr-servers",
+      "target": "server-db",
+      "data": { "label": "contains", "type": "contains" }
+    },
+    {
+      "id": "edge-servers-backup",
+      "source": "cidr-servers",
+      "target": "server-backup",
+      "data": { "label": "contains", "type": "contains" }
+    },
+    {
+      "id": "edge-core-mgmt",
+      "source": "device-core-switch",
+      "target": "cidr-mgmt",
+      "data": { "label": "VLAN 20", "type": "connects" }
+    },
+    {
+      "id": "edge-mgmt-monitor",
+      "source": "cidr-mgmt",
+      "target": "server-monitor",
+      "data": { "label": "contains", "type": "contains" }
+    },
+    {
+      "id": "edge-mgmt-admin",
+      "source": "cidr-mgmt",
+      "target": "pc-admin",
+      "data": { "label": "contains", "type": "contains" }
+    },
+    {
+      "id": "edge-core-workstations",
+      "source": "device-core-switch",
+      "target": "cidr-workstations",
+      "data": { "label": "VLAN 100", "type": "connects" }
+    },
+    {
+      "id": "edge-workstations-access",
+      "source": "cidr-workstations",
+      "target": "device-access-switch",
+      "data": { "label": "contains", "type": "contains" }
+    },
+    {
+      "id": "edge-access-ws1",
+      "source": "device-access-switch",
+      "target": "pc-work1",
+      "data": { "label": "port 1", "type": "connects" }
+    },
+    {
+      "id": "edge-access-ws2",
+      "source": "device-access-switch",
+      "target": "pc-work2",
+      "data": { "label": "port 2", "type": "connects" }
+    },
+    {
+      "id": "edge-access-ws3",
+      "source": "device-access-switch",
+      "target": "pc-work3",
+      "data": { "label": "port 3", "type": "connects" }
+    },
+    {
+      "id": "edge-access-ws4",
+      "source": "device-access-switch",
+      "target": "pc-work4",
+      "data": { "label": "port 4", "type": "connects" }
+    },
+    {
+      "id": "edge-dc-replication",
+      "source": "server-dc",
+      "target": "server-dc2",
+      "data": { "label": "AD Replication", "type": "depends_on" }
+    },
+    {
+      "id": "edge-web-db",
+      "source": "server-web",
+      "target": "server-db",
+      "data": { "label": "SQL queries", "type": "depends_on" }
+    },
+    {
+      "id": "edge-backup-dc",
+      "source": "server-backup",
+      "target": "server-dc",
+      "data": { "label": "backup", "type": "connects" }
+    },
+    {
+      "id": "edge-backup-file",
+      "source": "server-backup",
+      "target": "server-file",
+      "data": { "label": "backup", "type": "connects" }
+    },
+    {
+      "id": "edge-backup-db",
+      "source": "server-backup",
+      "target": "server-db",
+      "data": { "label": "backup", "type": "connects" }
+    },
+    {
+      "id": "edge-monitor-all",
+      "source": "server-monitor",
+      "target": "device-core-switch",
+      "data": { "label": "SNMP", "type": "connects" }
     }
   ]
 }

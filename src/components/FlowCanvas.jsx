@@ -19,6 +19,7 @@ import { DeviceNode } from './nodes/DeviceNode';
 import { Toolbar } from './Toolbar';
 import { ContextMenu } from './ContextMenu';
 import { NodeEditModal } from './NodeEditModal';
+import { applyLayout } from '../utils/layoutAlgorithms';
 
 import './FlowCanvas.css';
 
@@ -183,6 +184,15 @@ export const FlowCanvas = () => {
     [setCenter]
   );
 
+  const handleApplyLayout = useCallback(
+    (layoutType) => {
+      const newNodes = applyLayout(nodes, edges, layoutType);
+      setNodesState(newNodes);
+      setTimeout(() => fitView({ duration: 400, padding: 0.2 }), 50);
+    },
+    [nodes, edges, setNodesState, fitView]
+  );
+
   return (
     <div className="flow-container">
       <Toolbar
@@ -191,6 +201,7 @@ export const FlowCanvas = () => {
         onAddNode={handleAddNode}
         onFitView={handleFitView}
         onClearAll={handleClearAll}
+        onApplyLayout={handleApplyLayout}
         stats={stats}
       />
 
@@ -205,7 +216,7 @@ export const FlowCanvas = () => {
           onPaneClick={handlePaneClick}
           nodeTypes={nodeTypes}
           fitView
-          panOnScroll
+          panOnScroll={false}
           panOnDrag
           zoomOnScroll
           zoomOnPinch

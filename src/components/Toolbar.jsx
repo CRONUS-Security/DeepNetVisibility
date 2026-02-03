@@ -14,7 +14,14 @@ import {
   faCubes,
   faLink,
   faChevronDown,
+  faSitemap,
+  faProjectDiagram,
+  faTableCells,
+  faCircleNodes,
+  faArrowsUpDown,
+  faArrowsLeftRight,
 } from '@fortawesome/free-solid-svg-icons';
+import { LayoutTypes, LayoutLabels } from '../utils/layoutAlgorithms';
 import './Toolbar.css';
 
 export const Toolbar = ({
@@ -23,13 +30,16 @@ export const Toolbar = ({
   onAddNode,
   onFitView,
   onClearAll,
+  onApplyLayout,
   stats,
 }) => {
   const [showFileMenu, setShowFileMenu] = useState(false);
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [showLayoutMenu, setShowLayoutMenu] = useState(false);
   const fileInputRef = useRef(null);
   const fileMenuRef = useRef(null);
   const addMenuRef = useRef(null);
+  const layoutMenuRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -38,6 +48,9 @@ export const Toolbar = ({
       }
       if (addMenuRef.current && !addMenuRef.current.contains(event.target)) {
         setShowAddMenu(false);
+      }
+      if (layoutMenuRef.current && !layoutMenuRef.current.contains(event.target)) {
+        setShowLayoutMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -100,6 +113,19 @@ export const Toolbar = ({
     setShowAddMenu(false);
   };
 
+  const handleLayoutClick = (layoutType) => {
+    onApplyLayout(layoutType);
+    setShowLayoutMenu(false);
+  };
+
+  const layoutIcons = {
+    [LayoutTypes.HIERARCHICAL_TB]: faArrowsUpDown,
+    [LayoutTypes.HIERARCHICAL_LR]: faArrowsLeftRight,
+    [LayoutTypes.FORCE_DIRECTED]: faProjectDiagram,
+    [LayoutTypes.GRID]: faTableCells,
+    [LayoutTypes.RADIAL]: faCircleNodes,
+  };
+
   return (
     <div className="toolbar">
       <div className="toolbar-left">
@@ -116,6 +142,7 @@ export const Toolbar = ({
             onClick={() => {
               setShowFileMenu(!showFileMenu);
               setShowAddMenu(false);
+              setShowLayoutMenu(false);
             }}
           >
             <FontAwesomeIcon icon={faFolder} />
@@ -149,6 +176,7 @@ export const Toolbar = ({
             onClick={() => {
               setShowAddMenu(!showAddMenu);
               setShowFileMenu(false);
+              setShowLayoutMenu(false);
             }}
           >
             <FontAwesomeIcon icon={faPlus} />
@@ -173,6 +201,31 @@ export const Toolbar = ({
                 <FontAwesomeIcon icon={faGear} />
                 <span>Network Device</span>
               </button>
+            </div>
+          )}
+        </div>
+
+        <div className="toolbar-menu" ref={layoutMenuRef}>
+          <button
+            className={`toolbar-btn ${showLayoutMenu ? 'active' : ''}`}
+            onClick={() => {
+              setShowLayoutMenu(!showLayoutMenu);
+              setShowFileMenu(false);
+              setShowAddMenu(false);
+            }}
+          >
+            <FontAwesomeIcon icon={faSitemap} />
+            <span>Layout</span>
+            <FontAwesomeIcon icon={faChevronDown} className="chevron" />
+          </button>
+          {showLayoutMenu && (
+            <div className="dropdown-menu">
+              {Object.entries(LayoutTypes).map(([key, value]) => (
+                <button key={key} onClick={() => handleLayoutClick(value)}>
+                  <FontAwesomeIcon icon={layoutIcons[value]} />
+                  <span>{LayoutLabels[value]}</span>
+                </button>
+              ))}
             </div>
           )}
         </div>
