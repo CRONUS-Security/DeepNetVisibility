@@ -54,9 +54,26 @@ export const Toolbar = ({
         setShowLayoutMenu(false);
       }
     };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        if (showFileMenu || showAddMenu || showLayoutMenu) {
+          event.preventDefault();
+          event.stopPropagation();
+          setShowFileMenu(false);
+          setShowAddMenu(false);
+          setShowLayoutMenu(false);
+        }
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showFileMenu, showAddMenu, showLayoutMenu]);
 
   const handleFileSelect = async (event) => {
     const file = event.target.files?.[0];

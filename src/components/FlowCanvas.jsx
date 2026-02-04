@@ -222,14 +222,40 @@ export const FlowCanvas = () => {
   // Global keyboard shortcuts for selected nodes
   useEffect(() => {
     const handleKeyDown = (event) => {
-      // Skip if editing a node or context menu is open or typing in input
-      if (editingNode || contextMenu) return;
+      // Skip if typing in input
       if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+
+      const key = event.key.toLowerCase();
+
+      // Escape - Close context menu, close edit modal, or deselect nodes
+      if (key === 'escape') {
+        if (contextMenu) {
+          event.preventDefault();
+          setContextMenu(null);
+          return;
+        }
+        if (editingNode) {
+          event.preventDefault();
+          setEditingNode(null);
+          return;
+        }
+        // Deselect all nodes
+        const selectedNodes = nodes.filter((n) => n.selected);
+        if (selectedNodes.length > 0) {
+          event.preventDefault();
+          setNodesState((nds) =>
+            nds.map((n) => ({ ...n, selected: false }))
+          );
+          return;
+        }
+        return;
+      }
+
+      // Skip other shortcuts if editing or context menu is open
+      if (editingNode || contextMenu) return;
 
       const selectedNodes = nodes.filter((n) => n.selected);
       if (selectedNodes.length === 0) return;
-
-      const key = event.key.toLowerCase();
 
       // E - Edit (first selected node)
       if (key === 'e') {
@@ -273,6 +299,7 @@ export const FlowCanvas = () => {
     nodes,
     editingNode,
     contextMenu,
+    setNodesState,
     handleEditNode,
     handleDuplicateNode,
     handleFocusNode,
